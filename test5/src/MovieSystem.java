@@ -1,7 +1,7 @@
 import java.util.*;
 
 /**
- * 电影系统主类，管理整个应用程序
+ * Movie system main class, manages the entire application
  */
 public class MovieSystem {
     private Map<String, Movie> movies;
@@ -19,7 +19,7 @@ public class MovieSystem {
     }
 
     /**
-     * 启动电影系统
+     * Start the movie system
      */
     public void start() {
         System.out.println("=== Movie Recommendation & Tracker System ===");
@@ -34,7 +34,7 @@ public class MovieSystem {
     }
 
     /**
-     * 显示主菜单（未登录状态）
+     * Show main menu (not logged in)
      */
     private void showMainMenu() {
         System.out.println("\n=== Main Menu ===");
@@ -59,7 +59,7 @@ public class MovieSystem {
     }
 
     /**
-     * 显示用户菜单（登录状态）
+     * Show user menu (logged in)
      */
     private void showUserMenu() {
         System.out.println("\n=== User Menu (Logged in as: " + currentUser.getUsername() + ") ===");
@@ -104,7 +104,7 @@ public class MovieSystem {
     }
 
     /**
-     * 用户登录
+     * User login
      */
     private void login() {
         System.out.print("Enter username: ");
@@ -123,17 +123,17 @@ public class MovieSystem {
     }
 
     /**
-     * 用户登出
+     * User logout
      */
     private void logout() {
-        // 保存用户数据
+        // Save user data
         FileManager.saveUsers(users);
         System.out.println("Goodbye, " + currentUser.getUsername() + "!");
         currentUser = null;
     }
 
     /**
-     * 浏览所有电影 - 按照CSV文件中的实际电影数量输出
+     * Browse all movies - output according to actual number of movies in CSV file
      */
     private void browseMovies() {
         System.out.println("\n=== All Movies ===");
@@ -152,7 +152,7 @@ public class MovieSystem {
     }
 
     /**
-     * 添加电影到观看列表
+     * Add movie to watchlist
      */
     private void addToWatchlist() {
         System.out.print("Enter movie ID to add to watchlist: ");
@@ -165,9 +165,9 @@ public class MovieSystem {
 
         if (currentUser.getWatchlist().addMovie(movieId)) {
             System.out.println("Movie added to watchlist successfully.");
-            // 更新用户数据
+            // Update user data
             users.put(currentUser.getUsername(), currentUser);
-            // 保存到文件
+            // Save to file
             FileManager.saveUsers(users);
         } else {
             System.out.println("Movie is already in your watchlist.");
@@ -175,7 +175,7 @@ public class MovieSystem {
     }
 
     /**
-     * 从观看列表移除电影
+     * Remove movie from watchlist
      */
     private void removeFromWatchlist() {
         System.out.print("Enter movie ID to remove from watchlist: ");
@@ -183,9 +183,9 @@ public class MovieSystem {
 
         if (currentUser.getWatchlist().removeMovie(movieId)) {
             System.out.println("Movie removed from watchlist successfully.");
-            // 更新用户数据
+            // Update user data
             users.put(currentUser.getUsername(), currentUser);
-            // 保存到文件
+            // Save to file
             FileManager.saveUsers(users);
         } else {
             System.out.println("Movie not found in your watchlist.");
@@ -193,7 +193,7 @@ public class MovieSystem {
     }
 
     /**
-     * 查看观看列表
+     * View watchlist
      */
     private void viewWatchlist() {
         System.out.println("\n=== Your Watchlist ===");
@@ -213,7 +213,7 @@ public class MovieSystem {
     }
 
     /**
-     * 标记电影为已观看
+     * Mark movie as watched
      */
     private void markAsWatched() {
         System.out.print("Enter movie ID to mark as watched: ");
@@ -225,12 +225,12 @@ public class MovieSystem {
         }
 
         if (currentUser.getHistory().addMovie(movieId)) {
-            // 如果电影在观看列表中，移除它
+            // If movie is in watchlist, remove it
             currentUser.getWatchlist().removeMovie(movieId);
             System.out.println("Movie marked as watched successfully.");
-            // 更新用户数据
+            // Update user data
             users.put(currentUser.getUsername(), currentUser);
-            // 保存到文件
+            // Save to file
             FileManager.saveUsers(users);
         } else {
             System.out.println("Movie is already in your history.");
@@ -238,7 +238,7 @@ public class MovieSystem {
     }
 
     /**
-     * 查看观看历史
+     * View watch history
      */
     private void viewHistory() {
         System.out.println("\n=== Your Viewing History ===");
@@ -258,33 +258,31 @@ public class MovieSystem {
     }
 
     /**
-     * 获取推荐电影（支持多种策略）
+     * Get movie recommendations (supports multiple strategies)
      */
     private void getRecommendations() {
-        // 让用户选择推荐策略
+        // Let user choose recommendation strategy
         System.out.println("\n=== Choose Recommendation Strategy ===");
         System.out.println("1. Genre-based (Your favorite genres)");
         System.out.println("2. Rating-based (Highest rated movies)");
         System.out.println("3. Year-based (Most recent movies)");
-        System.out.println("4. Hybrid (Genre + Rating)");
-        System.out.print("Please choose a strategy (1-4, default 4): ");
+        System.out.print("Please choose a strategy (1-3, default 1): ");
 
         String strategyChoice = scanner.nextLine().trim();
-        String strategyKey = "hybrid"; // 默认混合策略
+        String strategyKey = "genre"; // Default to genre strategy
 
         if (!strategyChoice.isEmpty()) {
             switch (strategyChoice) {
                 case "1": strategyKey = "genre"; break;
                 case "2": strategyKey = "rating"; break;
                 case "3": strategyKey = "year"; break;
-                case "4": strategyKey = "hybrid"; break;
                 default:
-                    System.out.println("Invalid choice. Using hybrid strategy.");
-                    strategyKey = "hybrid";
+                    System.out.println("Invalid choice. Using genre-based strategy.");
+                    strategyKey = "genre";
             }
         }
 
-        // 设置推荐策略
+        // Set recommendation strategy
         recommendationEngine.setCurrentStrategy(strategyKey);
 
         System.out.print("Enter number of recommendations (default 5): ");
@@ -313,7 +311,7 @@ public class MovieSystem {
     }
 
     /**
-     * 查看所有可用的推荐策略
+     * View all available recommendation strategies
      */
     private void viewRecommendationStrategies() {
         System.out.println("\n=== Available Recommendation Strategies ===");

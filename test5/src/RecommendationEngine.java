@@ -1,7 +1,7 @@
 import java.util.*;
 
 /**
- * 推荐引擎类，根据用户偏好推荐电影，支持多种策略
+ * Recommendation engine class, recommends movies based on user preferences with multiple strategies
  */
 public class RecommendationEngine {
     private Map<String, Movie> movies;
@@ -9,11 +9,11 @@ public class RecommendationEngine {
 
     public RecommendationEngine(Map<String, Movie> movies) {
         this.movies = movies;
-        this.currentStrategy = "hybrid"; // 默认使用混合策略
+        this.currentStrategy = "genre"; // Default to genre strategy
     }
 
     /**
-     * 获取推荐电影列表
+     * Get recommended movie list
      */
     public List<Movie> getRecommendations(User user, int topN) {
         switch (currentStrategy) {
@@ -23,75 +23,70 @@ public class RecommendationEngine {
                 return getRatingBasedRecommendations(user, topN);
             case "year":
                 return getYearBasedRecommendations(user, topN);
-            case "hybrid":
-            default:
-                return getHybridRecommendations(user, topN);
         }
+        // This should never happen due to setCurrentStrategy validation
+        return getGenreBasedRecommendations(user, topN);
     }
 
     /**
-     * 设置当前推荐策略
+     * Set current recommendation strategy
      */
     public void setCurrentStrategy(String strategy) {
-        if (strategy.equals("genre") || strategy.equals("rating") ||
-                strategy.equals("year") || strategy.equals("hybrid")) {
+        if (strategy.equals("genre") || strategy.equals("rating") || strategy.equals("year")) {
             this.currentStrategy = strategy;
         }
+        // Silently ignore invalid strategies
     }
 
     /**
-     * 获取当前策略名称
+     * Get current strategy name
      */
     public String getCurrentStrategyName() {
         switch (currentStrategy) {
             case "genre": return "Genre-Based Recommendation";
             case "rating": return "Rating-Based Recommendation";
             case "year": return "Year-Based Recommendation";
-            case "hybrid": return "Hybrid Recommendation";
-            default: return "Unknown Strategy";
         }
+        return "Genre-Based Recommendation"; // Fallback
     }
 
     /**
-     * 获取策略描述
+     * Get strategy description
      */
     public String getStrategyDescription(String strategy) {
         switch (strategy) {
             case "genre": return "Recommends movies based on your favorite genres from watch history and watchlist";
             case "rating": return "Recommends highest rated movies you haven't watched yet";
             case "year": return "Recommends the most recent movies you haven't watched yet";
-            case "hybrid": return "Recommends movies based on your favorite genres and highest ratings";
-            default: return "Unknown strategy";
         }
+        return "Unknown strategy"; // Fallback
     }
 
     /**
-     * 获取所有可用的策略列表
+     * Get all available strategy list
      */
     public List<String> getAvailableStrategies() {
         List<String> strategies = new ArrayList<>();
         strategies.add("genre");
         strategies.add("rating");
         strategies.add("year");
-        strategies.add("hybrid");
         return strategies;
     }
 
     /**
-     * 获取策略显示名称
+     * Get strategy display name
      */
     public String getStrategyDisplayName(String strategy) {
         switch (strategy) {
             case "genre": return "Genre-Based Recommendation";
             case "rating": return "Rating-Based Recommendation";
             case "year": return "Year-Based Recommendation";
-            case "hybrid": return "Hybrid Recommendation";
-            default: return "Unknown";
         }
+        return "Unknown"; // Fallback
     }
 
     /**
-     * 基于类型的推荐策略
+     * Genre-based recommendation strategy
      */
     private List<Movie> getGenreBasedRecommendations(User user, int topN) {
         if (user.getHistory().isEmpty() && user.getWatchlist().isEmpty()) {
@@ -104,12 +99,12 @@ public class RecommendationEngine {
             return getTopRatedMovies(topN);
         }
 
-        // 获取用户已经观看或计划观看的电影ID
+        // Get movie IDs that user has already watched or plans to watch
         Set<String> userMovieIds = new HashSet<>();
         userMovieIds.addAll(user.getHistory().getMovieIds());
         userMovieIds.addAll(user.getWatchlist().getMovieIds());
 
-        // 创建候选电影列表
+        // Create candidate movie list
         List<Movie> candidateMovies = new ArrayList<>();
         for (Movie movie : movies.values()) {
             if (!userMovieIds.contains(movie.getId())) {
@@ -117,10 +112,10 @@ public class RecommendationEngine {
             }
         }
 
-        // 使用简单的冒泡排序根据用户偏好排序
+        // Sort using bubble sort based on user preferences
         sortMoviesByPreference(candidateMovies, genreCounts);
 
-        // 返回前topN个推荐
+        // Return topN recommendations
         List<Movie> recommendations = new ArrayList<>();
         int count = Math.min(topN, candidateMovies.size());
         for (int i = 0; i < count; i++) {
@@ -131,12 +126,12 @@ public class RecommendationEngine {
     }
 
     /**
-     * 基于评分的推荐策略
+     * Rating-based recommendation strategy
      */
     private List<Movie> getRatingBasedRecommendations(User user, int topN) {
         List<Movie> allMovies = new ArrayList<>(movies.values());
 
-        // 排除用户已经观看或计划观看的电影
+        // Exclude movies user has already watched or plans to watch
         Set<String> userMovieIds = new HashSet<>();
         userMovieIds.addAll(user.getHistory().getMovieIds());
         userMovieIds.addAll(user.getWatchlist().getMovieIds());
@@ -148,10 +143,10 @@ public class RecommendationEngine {
             }
         }
 
-        // 使用冒泡排序按评分排序
+        // Sort by rating using bubble sort
         sortMoviesByRating(candidateMovies);
 
-        // 返回前topN个推荐
+        // Return topN recommendations
         List<Movie> recommendations = new ArrayList<>();
         int count = Math.min(topN, candidateMovies.size());
         for (int i = 0; i < count; i++) {
@@ -162,12 +157,12 @@ public class RecommendationEngine {
     }
 
     /**
-     * 基于年份的推荐策略
+     * Year-based recommendation strategy
      */
     private List<Movie> getYearBasedRecommendations(User user, int topN) {
         List<Movie> allMovies = new ArrayList<>(movies.values());
 
-        // 排除用户已经观看或计划观看的电影
+        // Exclude movies user has already watched or plans to watch
         Set<String> userMovieIds = new HashSet<>();
         userMovieIds.addAll(user.getHistory().getMovieIds());
         userMovieIds.addAll(user.getWatchlist().getMovieIds());
@@ -179,10 +174,10 @@ public class RecommendationEngine {
             }
         }
 
-        // 使用冒泡排序按年份排序（最新的在前）
+        // Sort by year using bubble sort (newest first)
         sortMoviesByYear(candidateMovies);
 
-        // 返回前topN个推荐
+        // Return topN recommendations
         List<Movie> recommendations = new ArrayList<>();
         int count = Math.min(topN, candidateMovies.size());
         for (int i = 0; i < count; i++) {
@@ -193,47 +188,7 @@ public class RecommendationEngine {
     }
 
     /**
-     * 混合推荐策略（结合类型和评分）
-     */
-    private List<Movie> getHybridRecommendations(User user, int topN) {
-        if (user.getHistory().isEmpty() && user.getWatchlist().isEmpty()) {
-            return getTopRatedMovies(topN);
-        }
-
-        Map<String, Integer> genreCounts = getUserFavoriteGenres(user);
-
-        if (genreCounts.isEmpty()) {
-            return getTopRatedMovies(topN);
-        }
-
-        // 获取用户已经观看或计划观看的电影ID
-        Set<String> userMovieIds = new HashSet<>();
-        userMovieIds.addAll(user.getHistory().getMovieIds());
-        userMovieIds.addAll(user.getWatchlist().getMovieIds());
-
-        // 创建候选电影列表
-        List<Movie> candidateMovies = new ArrayList<>();
-        for (Movie movie : movies.values()) {
-            if (!userMovieIds.contains(movie.getId())) {
-                candidateMovies.add(movie);
-            }
-        }
-
-        // 混合排序：先按类型匹配度，再按评分
-        sortMoviesHybrid(candidateMovies, genreCounts);
-
-        // 返回前topN个推荐
-        List<Movie> recommendations = new ArrayList<>();
-        int count = Math.min(topN, candidateMovies.size());
-        for (int i = 0; i < count; i++) {
-            recommendations.add(candidateMovies.get(i));
-        }
-
-        return recommendations;
-    }
-
-    /**
-     * 使用冒泡排序根据用户偏好排序电影
+     * Sort movies by user preference using bubble sort
      */
     private void sortMoviesByPreference(List<Movie> movies, Map<String, Integer> genreCounts) {
         int n = movies.size();
@@ -245,16 +200,16 @@ public class RecommendationEngine {
                 int genreScore1 = genreCounts.containsKey(m1.getGenre()) ? genreCounts.get(m1.getGenre()) : 0;
                 int genreScore2 = genreCounts.containsKey(m2.getGenre()) ? genreCounts.get(m2.getGenre()) : 0;
 
-                // 先按类型匹配度排序
+                // Sort by genre match first
                 if (genreScore1 < genreScore2) {
-                    // 交换位置
+                    // Swap positions
                     Movie temp = movies.get(j);
                     movies.set(j, movies.get(j + 1));
                     movies.set(j + 1, temp);
                 }
-                // 如果类型匹配度相同，按评分排序
+                // If genre match is equal, sort by rating
                 else if (genreScore1 == genreScore2 && m1.getRating() < m2.getRating()) {
-                    // 交换位置
+                    // Swap positions
                     Movie temp = movies.get(j);
                     movies.set(j, movies.get(j + 1));
                     movies.set(j + 1, temp);
@@ -264,39 +219,7 @@ public class RecommendationEngine {
     }
 
     /**
-     * 混合排序：先按类型匹配度，再按评分
-     */
-    private void sortMoviesHybrid(List<Movie> movies, Map<String, Integer> genreCounts) {
-        int n = movies.size();
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                Movie m1 = movies.get(j);
-                Movie m2 = movies.get(j + 1);
-
-                int genreScore1 = genreCounts.containsKey(m1.getGenre()) ? genreCounts.get(m1.getGenre()) : 0;
-                int genreScore2 = genreCounts.containsKey(m2.getGenre()) ? genreCounts.get(m2.getGenre()) : 0;
-
-                // 主要按类型匹配度，次要按评分
-                if (genreScore1 < genreScore2) {
-                    // 交换位置
-                    Movie temp = movies.get(j);
-                    movies.set(j, movies.get(j + 1));
-                    movies.set(j + 1, temp);
-                } else if (genreScore1 == genreScore2) {
-                    // 类型匹配度相同时，按评分排序
-                    if (m1.getRating() < m2.getRating()) {
-                        // 交换位置
-                        Movie temp = movies.get(j);
-                        movies.set(j, movies.get(j + 1));
-                        movies.set(j + 1, temp);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 使用冒泡排序按评分排序电影
+     * Sort movies by rating using bubble sort
      */
     private void sortMoviesByRating(List<Movie> movies) {
         int n = movies.size();
@@ -306,7 +229,7 @@ public class RecommendationEngine {
                 Movie m2 = movies.get(j + 1);
 
                 if (m1.getRating() < m2.getRating()) {
-                    // 交换位置
+                    // Swap positions
                     Movie temp = movies.get(j);
                     movies.set(j, movies.get(j + 1));
                     movies.set(j + 1, temp);
@@ -316,7 +239,7 @@ public class RecommendationEngine {
     }
 
     /**
-     * 使用冒泡排序按年份排序电影
+     * Sort movies by year using bubble sort
      */
     private void sortMoviesByYear(List<Movie> movies) {
         int n = movies.size();
@@ -326,7 +249,7 @@ public class RecommendationEngine {
                 Movie m2 = movies.get(j + 1);
 
                 if (m1.getYear() < m2.getYear()) {
-                    // 交换位置
+                    // Swap positions
                     Movie temp = movies.get(j);
                     movies.set(j, movies.get(j + 1));
                     movies.set(j + 1, temp);
@@ -336,12 +259,12 @@ public class RecommendationEngine {
     }
 
     /**
-     * 获取用户最喜欢的电影类型
+     * Get user's favorite movie genres
      */
     private Map<String, Integer> getUserFavoriteGenres(User user) {
         Map<String, Integer> genreCounts = new HashMap<>();
 
-        // 从观看历史中统计类型
+        // Count genres from watch history
         for (String movieId : user.getHistory().getMovieIds()) {
             Movie movie = movies.get(movieId);
             if (movie != null) {
@@ -354,7 +277,7 @@ public class RecommendationEngine {
             }
         }
 
-        // 从观看列表中统计类型
+        // Count genres from watchlist
         for (String movieId : user.getWatchlist().getMovieIds()) {
             Movie movie = movies.get(movieId);
             if (movie != null) {
@@ -371,15 +294,15 @@ public class RecommendationEngine {
     }
 
     /**
-     * 获取评分最高的电影
+     * Get top rated movies
      */
     private List<Movie> getTopRatedMovies(int topN) {
         List<Movie> allMovies = new ArrayList<>(movies.values());
 
-        // 使用冒泡排序按评分排序
+        // Sort by rating using bubble sort
         sortMoviesByRating(allMovies);
 
-        // 返回前topN个电影
+        // Return topN movies
         List<Movie> topMovies = new ArrayList<>();
         int count = Math.min(topN, allMovies.size());
         for (int i = 0; i < count; i++) {
