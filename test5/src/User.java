@@ -1,3 +1,4 @@
+
 /**
  * 用户类，管理用户信息和关联的Watchlist、History对象
  */
@@ -35,5 +36,9 @@ public class User {
 
     public History getHistory() {
         return history;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
