@@ -71,7 +71,8 @@ public class MovieSystem {
         System.out.println("6. View history");
         System.out.println("7. Get recommendations");
         System.out.println("8. View recommendation strategies");
-        System.out.println("9. Logout");
+        System.out.println("9. Change password");
+        System.out.println("10. Logout");
         System.out.print("Please choose an option: ");
 
         try {
@@ -94,6 +95,8 @@ public class MovieSystem {
             } else if (choice == 8) {
                 viewRecommendationStrategies();
             } else if (choice == 9) {
+                changePassword();
+            } else if (choice == 10) {
                 logout();
             } else {
                 System.out.println("Invalid option. Please try again.");
@@ -119,6 +122,46 @@ public class MovieSystem {
             System.out.println("Login successful! Welcome, " + username + "!");
         } else {
             System.out.println("Invalid username or password. Please try again.");
+        }
+    }
+
+    /**
+     * Change password
+     */
+    private void changePassword() {
+        while (true) {
+            System.out.print("Please enter the original password: ");
+            String password = scanner.nextLine().trim();
+            if (password.equals(currentUser.getPassword())) {
+                String newPassword1 = "1";
+                String newPassword2 = "2";
+
+                while (!newPassword1.equals(newPassword2)) {
+                    System.out.print("Enter new password: ");
+                    newPassword1 = scanner.nextLine().trim();
+                    System.out.print("Reenter new password: ");
+                    newPassword2 = scanner.nextLine().trim();
+                    System.out.println("Password modification failed, two passwords are inconsistent!");
+                }
+                currentUser.setPassword(newPassword1);
+                System.out.println("Change password successfully!");
+                break;
+
+            } else {
+                System.out.println("Password does not match!");
+                System.out.println("Please choose an option: ");
+                int choice = 0;
+                while (choice != 2) {
+                    System.out.println("1. Return to the User Menu");
+                    System.out.println("2. Reenter the password");
+                    choice = Integer.parseInt(scanner.nextLine().trim());
+                    if (choice == 1) {
+                        return;
+                    } else if (choice != 2) {
+                        System.out.println("Invalid option. Please try again.");
+                    }
+                }
+            }
         }
     }
 
@@ -273,9 +316,15 @@ public class MovieSystem {
 
         if (!strategyChoice.isEmpty()) {
             switch (strategyChoice) {
-                case "1": strategyKey = "genre"; break;
-                case "2": strategyKey = "rating"; break;
-                case "3": strategyKey = "year"; break;
+                case "1":
+                    strategyKey = "genre";
+                    break;
+                case "2":
+                    strategyKey = "rating";
+                    break;
+                case "3":
+                    strategyKey = "year";
+                    break;
                 default:
                     System.out.println("Invalid choice. Using genre-based strategy.");
                     strategyKey = "genre";
